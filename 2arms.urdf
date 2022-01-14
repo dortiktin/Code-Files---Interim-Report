@@ -1,0 +1,130 @@
+<?xml version="1.0" ?>
+<robot name="2arms" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <link name="dummy">
+  </link>
+  <link name="base">
+    <!-- mass and inertia -->
+    <inertial>
+      <mass value="1200"/>
+      <origin rpy="0 0 0" xyz="0 0 0.5"/>  <!-- Base origin -->
+      <inertia ixx="125" ixy="0" ixz="0" iyy="125" iyz="0" izz="50"/>
+    </inertial>
+    <!-- body collision -->
+    <collision>
+     <origin rpy="0 0 0" xyz="0 0 0.5"/>  <!-- Base origin -->
+      <geometry>
+        <box size="0.5 0.5 1.0"/>
+      </geometry>
+    </collision>
+    <!-- body visualization -->
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0.5"/>  <!-- Base origin -->
+      <geometry>
+        <box size="0.5 0.5 1.0"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="dummy_joint" type="fixed">
+     <parent link="dummy"/>
+     <child link="base"/>
+  </joint>
+
+  <link name="arm1">
+    <!-- mass and inertia -->
+    <inertial>
+      <mass value="120"/>
+      <origin rpy="1.57 0 0" xyz="0 0.25 0"/> <!-- mass origin referenced to base origin -->
+      <inertia ixx="2.8" ixy="0" ixz="0" iyy="2.8" iyz="0" izz="0.6"/>
+    </inertial>
+    <!-- body collision -->
+    <collision name="arm1_collision">
+      <origin rpy="1.57 0 0" xyz="0 0.25 0"/>  <!-- collision origin referenced to base origin  -->
+      <geometry>
+        <cylinder length="0.5" radius="0.1"/>
+      </geometry>
+    </collision>
+    <!-- body visualization -->
+    <visual name="arm1_visual">
+      <origin rpy="1.57 0 0" xyz="0 0.25 0"/>   <!-- visualization origin referenced to base origin -->
+      <geometry>
+        <cylinder length="0.5" radius="0.1"/>
+      </geometry>
+    </visual>
+  </link>
+  
+  <joint name="joint1" type="revolute">
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+    <origin rpy="0 0 0" xyz="0 0.25 0.5"/>
+    <child link="arm1"/>
+    <parent link="base"/>
+    <limit effort="1000" lower="-3.14" upper="3.14" velocity="0.2"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+  </joint>
+
+  <link name="arm2">
+    <!-- mass and inertia -->
+    <inertial>
+      <mass value="120"/>
+      <origin rpy="-1.57 0 0" xyz="0 -0.25 0"/>    <!-- mass origin referenced to base origin -->
+      <inertia ixx="2.8" ixy="0" ixz="0" iyy="2.8" iyz="0" izz="0.6"/>
+    </inertial>
+    <!-- body collision -->
+    <collision name="arm2_collision">
+      <origin rpy="-1.57 0 0" xyz="0 -0.25 0"/>  <!-- collision origin referenced to base origin -->
+      <geometry>
+        <cylinder length="0.5" radius="0.1"/>
+      </geometry>
+    </collision>
+    <!-- body visualization -->
+    <visual name="arm2_visual">
+      <origin rpy="1.57 0 0" xyz="0 -0.25 0"/>    <!-- visualization origin referenced to base origin -->
+      <geometry>
+        <cylinder length="0.5" radius="0.1"/>
+      </geometry>
+    </visual>
+  </link>
+  
+  <joint name="joint2" type="revolute">
+    <axis rpy="0 0 0" xyz="0 -1 0"/>
+    <origin rpy="0 0 0" xyz="0 -0.25 0.5"/>
+    <child link="arm2"/>
+    <parent link="base"/>
+    <limit effort="1000" lower="-3.14" upper="3.14" velocity="0.2"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+  </joint>
+  
+<!-- ########################################################################################## -->
+  <!-- Transmissions -->
+  <transmission name="trans1">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="trans2">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint2">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor2">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+<!-- ########################################################################################## -->
+  <!-- Ros_Control Gazebo plugin -->
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/2arms</robotNamespace>
+    </plugin>
+  </gazebo>
+
+</robot>

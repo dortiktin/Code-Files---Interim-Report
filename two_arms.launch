@@ -1,0 +1,14 @@
+<launch>
+  <!-- Load joint controller configurations from YAML file to parameter server -->
+  <rosparam file="$(find two_arms_control)/config/two_arms.yaml" command="load"/>
+
+  <!-- Load the controllers -->
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+    output="screen" ns="/2arms" args="controller1 controller2 joint_state_controller"/>
+
+  <!-- Convert joint states to TF transforms for Rviz -->
+  <node name="control_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+    respawn="false" output="screen">
+    <remap from="/joint_states" to="/2arms/joint_states"/>
+  </node>
+</launch>
